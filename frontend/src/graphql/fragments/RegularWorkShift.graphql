@@ -1,0 +1,7 @@
+fragment RegularWorkShift on WorkShift {
+  id
+  title
+  notes
+  createdAt
+  updatedAt
+}

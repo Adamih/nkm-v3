@@ -1,0 +1,5 @@
+query WorkShift($id: Int!) {
+  workShift(id: $id) {
+    ...RegularWorkShift
+  }
+}

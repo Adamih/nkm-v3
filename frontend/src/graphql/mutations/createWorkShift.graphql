@@ -1,0 +1,5 @@
+mutation CreateWorkShift($options: WorkShiftInput!) {
+  createWorkShift(options: $options) {
+    ...RegularWorkShift
+  }
+}

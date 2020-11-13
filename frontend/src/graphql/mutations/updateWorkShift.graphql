@@ -1,0 +1,7 @@
+mutation UpdateWorkShift($id: Int!, $options: WorkShiftInput!) {
+  updateWorkShift(id: $id, options: $options) {
+    id
+    title
+    notes
+  }
+}

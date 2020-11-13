@@ -1,0 +1,8 @@
+query WorkShifts($limit: Int!, $cursor: String) {
+  workShifts(limit: $limit, cursor: $cursor) {
+    hasMore
+    workShifts {
+      ...RegularWorkShift
+    }
+  }
+}
