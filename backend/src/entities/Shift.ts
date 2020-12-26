@@ -3,8 +3,8 @@ import {
   Entity,
   BaseEntity,
   ManyToOne,
-  PrimaryColumn,
   CreateDateColumn,
+  PrimaryColumn,
 } from "typeorm";
 import { User } from "./User";
 import { Event } from "./Event";
@@ -29,6 +29,7 @@ export class Shift extends BaseEntity {
 
   @ManyToOne(() => Event, (event) => event.shifts, {
     onDelete: "CASCADE",
+    lazy: true,
   })
   event: Event;
 

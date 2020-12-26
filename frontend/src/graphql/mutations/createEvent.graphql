@@ -1,0 +1,5 @@
+mutation CreateEvent($options: CreateEventInput!) {
+  createEvent(options: $options) {
+    ...RegularEvent
+  }
+}

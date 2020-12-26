@@ -36,9 +36,9 @@ const main = async () => {
     console.log("Creating admin user");
     User.create({
       id: 1,
-      firstName: "adam",
-      lastName: "henriksson",
-      email: "adahen@nkm.se",
+      firstName: "Adam",
+      lastName: "Henriksson",
+      email: "admin@nkm.se",
       password: await argon2.hash("admin"),
     }).save();
   }

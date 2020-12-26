@@ -13,7 +13,8 @@ import {
   RegisterMutation,
   VoteMutationVariables,
   DeletePostMutationVariables,
-  DeleteWorkShiftMutationVariables,
+  DeleteEventMutationVariables,
+  CreateShiftMutationVariables,
 } from "../generated/graphql";
 import { myUpdateQuery } from "./myUpdateQuery";
 import { pipe, tap } from "wonka";
@@ -40,7 +41,7 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-export const cursorPagination = (): Resolver => {
+export const cursorPagination = (key): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
 
@@ -54,30 +55,30 @@ export const cursorPagination = (): Resolver => {
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
     const isItInTheCache = cache.resolve(
       cache.resolveFieldByKey(entityKey, fieldKey) as string,
-      "posts"
+      key
     );
     info.partial = !isItInTheCache;
-    const posts: String[] = [];
+    const entries: String[] = [];
     let hasMore = true;
     fieldInfos.forEach((fi) => {
-      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, "posts") as String[];
+      const _key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+      const data = cache.resolve(_key, key) as String[];
       const _hasMore = cache.resolve(key, "hasMore");
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
-      posts.push(...data);
+      entries.push(...data);
     });
 
     return {
-      __typename: "PaginatedPosts",
+      __typename: "PaginatedEvents",
       hasMore,
-      posts,
+      entries,
     };
   };
 };
 
-const invalidateAllEntries = (cache: Cache, fieldName: "posts") => {
+const invalidateAllEntries = (cache: Cache, fieldName: string) => {
   const allFields = cache.inspectFields("Query");
   const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
   fieldInfos.forEach((fi) => {
@@ -103,15 +104,16 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         resolvers: {
           Query: {
-            posts: cursorPagination(),
+            posts: cursorPagination("posts"),
+            events: cursorPagination("events"),
           },
         },
         updates: {
           Mutation: {
-            deleteWorkShift: (_result, args, cache, info) => {
+            deleteEvent: (_result, args, cache, info) => {
               cache.invalidate({
-                __typename: "WorkShift",
-                id: (args as DeleteWorkShiftMutationVariables).id,
+                __typename: "Event",
+                id: (args as DeleteEventMutationVariables).id,
               });
             },
             deletePost: (_result, args, cache, info) => {
@@ -132,23 +134,28 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 { id: postId } as any
               );
-              if (data) {
-                if (data.voteStatus === value) return;
-                const newPoints =
-                  (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
-                cache.writeFragment(
-                  gql`
-                    fragment __ on Post {
-                      points
-                      voteStatus
-                    }
-                  `,
-                  { id: postId, points: newPoints, voteStatus: value } as any
-                );
-              }
+              if (!data) return;
+              if (data.voteStatus === value) return;
+              const newPoints =
+                (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+              cache.writeFragment(
+                gql`
+                  fragment __ on Post {
+                    points
+                    voteStatus
+                  }
+                `,
+                { id: postId, points: newPoints, voteStatus: value } as any
+              );
             },
             createPost: (_result, args, cache, info) => {
               invalidateAllEntries(cache, "posts");
+            },
+            createEvent: (_result, args, cache, info) => {
+              invalidateAllEntries(cache, "events");
+            },
+            createShift: (_result, args, cache, info) => {
+              invalidateAllEntries(cache, "events");
             },
             logout: (_result, args, cache, info) => {
               myUpdateQuery<LogoutMutation, MeQuery>(

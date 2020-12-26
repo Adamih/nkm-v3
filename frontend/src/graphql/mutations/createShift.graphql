@@ -1,0 +1,8 @@
+mutation CreateShift($eventId: Int!) {
+  createShift(eventId: $eventId) {
+    workerId
+    worker {
+      ...RegularUser
+    }
+  }
+}

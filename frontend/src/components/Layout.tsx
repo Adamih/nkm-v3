@@ -1,6 +1,6 @@
 import React from "react";
 import { NavBar } from "./NavBar";
-import { Wrapper, WrapperSize, WrapperVariant } from "./Wrapper";
+import { Wrapper, WrapperSize } from "./Wrapper";
 
 interface LayoutProps {
   size?: WrapperSize;

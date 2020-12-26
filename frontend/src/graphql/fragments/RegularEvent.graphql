@@ -1,0 +1,18 @@
+fragment RegularEvent on Event {
+  id
+  title
+  sa {
+    ...RegularUser
+  }
+  locale
+  notes
+  shifts {
+    workerId
+    worker {
+      ...RegularUser
+    }
+  }
+  hasShift
+  createdAt
+  updatedAt
+}

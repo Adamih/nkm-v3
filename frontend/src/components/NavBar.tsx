@@ -16,11 +16,16 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     <Flex zIndex={1} position="sticky" top={0} bg="tomato" p={4}>
       <Flex align="center" m="auto" maxW="760px" flex={1}>
         <Box mr="auto">
-          <NextLink href="/">
-            <Link>
-              <Heading>NKM</Heading>
-            </Link>
-          </NextLink>
+          <Flex align="center">
+            <NextLink href="/">
+              <Link mr={8}>
+                <Heading>NKM</Heading>
+              </Link>
+            </NextLink>
+            <NextLink href="/event">
+              <Link mr={2}>Events</Link>
+            </NextLink>
+          </Flex>
         </Box>
 
         <Box ml="auto">

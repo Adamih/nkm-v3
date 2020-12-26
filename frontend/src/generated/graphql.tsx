@@ -14,12 +14,11 @@ export type Scalars = {
 
 export type Query = {
   __typename?: 'Query';
-  hello: Scalars['String'];
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
-  workShifts: PaginatedWorkShifts;
-  workShift?: Maybe<WorkShift>;
+  events: PaginatedEvents;
+  event?: Maybe<Event>;
 };
 
 
@@ -34,13 +33,13 @@ export type QueryPostArgs = {
 };
 
 
-export type QueryWorkShiftsArgs = {
+export type QueryEventsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
 
 
-export type QueryWorkShiftArgs = {
+export type QueryEventArgs = {
   id: Scalars['Int'];
 };
 
@@ -74,19 +73,33 @@ export type User = {
   updatedAt: Scalars['String'];
 };
 
-export type PaginatedWorkShifts = {
-  __typename?: 'PaginatedWorkShifts';
-  workShifts: Array<WorkShift>;
+export type PaginatedEvents = {
+  __typename?: 'PaginatedEvents';
+  events: Array<Event>;
   hasMore: Scalars['Boolean'];
 };
 
-export type WorkShift = {
-  __typename?: 'WorkShift';
+export type Event = {
+  __typename?: 'Event';
   id: Scalars['Float'];
   title: Scalars['String'];
+  locale: Scalars['String'];
+  saId?: Maybe<Scalars['Float']>;
+  sa?: Maybe<User>;
+  workersNeeded?: Maybe<Scalars['Int']>;
+  hasShift?: Maybe<Scalars['Boolean']>;
+  shifts: Array<Shift>;
   notes?: Maybe<Scalars['String']>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+};
+
+export type Shift = {
+  __typename?: 'Shift';
+  workerId: Scalars['Float'];
+  worker: User;
+  eventId: Scalars['Float'];
+  createdAt: Scalars['String'];
 };
 
 export type Mutation = {
@@ -100,9 +113,11 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   changePassword: UserResponse;
-  createWorkShift: WorkShift;
-  updateWorkShift?: Maybe<WorkShift>;
-  deleteWorkShift: Scalars['Boolean'];
+  createShift: Shift;
+  shift: Shift;
+  createEvent: Event;
+  updateEvent?: Maybe<Event>;
+  deleteEvent: Scalars['Boolean'];
 };
 
 
@@ -149,18 +164,28 @@ export type MutationChangePasswordArgs = {
 };
 
 
-export type MutationCreateWorkShiftArgs = {
-  options: WorkShiftInput;
+export type MutationCreateShiftArgs = {
+  eventId: Scalars['Int'];
 };
 
 
-export type MutationUpdateWorkShiftArgs = {
-  options?: Maybe<WorkShiftInput>;
+export type MutationShiftArgs = {
   id: Scalars['Int'];
 };
 
 
-export type MutationDeleteWorkShiftArgs = {
+export type MutationCreateEventArgs = {
+  options: CreateEventInput;
+};
+
+
+export type MutationUpdateEventArgs = {
+  options?: Maybe<UpdateEventInput>;
+  id: Scalars['Int'];
+};
+
+
+export type MutationDeleteEventArgs = {
   id: Scalars['Int'];
 };
 
@@ -186,8 +211,18 @@ export type LoginInput = {
   password: Scalars['String'];
 };
 
-export type WorkShiftInput = {
+export type CreateEventInput = {
   title: Scalars['String'];
+  locale: Scalars['String'];
+  workersNeeded?: Maybe<Scalars['Float']>;
+  notes?: Maybe<Scalars['String']>;
+};
+
+export type UpdateEventInput = {
+  title: Scalars['String'];
+  locale: Scalars['String'];
+  saId?: Maybe<Scalars['Float']>;
+  workersNeeded?: Maybe<Scalars['Float']>;
   notes?: Maybe<Scalars['String']>;
 };
 
@@ -196,8 +231,24 @@ export type PostSnippetFragment = (
   & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'points' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
-    & Pick<User, 'id' | 'email'>
+    & RegularUserFragment
   ) }
+);
+
+export type RegularEventFragment = (
+  { __typename?: 'Event' }
+  & Pick<Event, 'id' | 'title' | 'locale' | 'notes' | 'hasShift' | 'createdAt' | 'updatedAt'>
+  & { sa?: Maybe<(
+    { __typename?: 'User' }
+    & RegularUserFragment
+  )>, shifts: Array<(
+    { __typename?: 'Shift' }
+    & Pick<Shift, 'workerId'>
+    & { worker: (
+      { __typename?: 'User' }
+      & RegularUserFragment
+    ) }
+  )> }
 );
 
 export type RegularPostFragment = (
@@ -208,11 +259,6 @@ export type RegularPostFragment = (
 export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>
-);
-
-export type RegularWorkShiftFragment = (
-  { __typename?: 'WorkShift' }
-  & Pick<WorkShift, 'id' | 'title' | 'notes' | 'createdAt' | 'updatedAt'>
 );
 
 export type ChangePasswordMutationVariables = Exact<{
@@ -232,6 +278,19 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type CreateEventMutationVariables = Exact<{
+  options: CreateEventInput;
+}>;
+
+
+export type CreateEventMutation = (
+  { __typename?: 'Mutation' }
+  & { createEvent: (
+    { __typename?: 'Event' }
+    & RegularEventFragment
+  ) }
+);
+
 export type CreatePostMutationVariables = Exact<{
   options: PostInput;
 }>;
@@ -245,17 +304,31 @@ export type CreatePostMutation = (
   ) }
 );
 
-export type CreateWorkShiftMutationVariables = Exact<{
-  options: WorkShiftInput;
+export type CreateShiftMutationVariables = Exact<{
+  eventId: Scalars['Int'];
 }>;
 
 
-export type CreateWorkShiftMutation = (
+export type CreateShiftMutation = (
   { __typename?: 'Mutation' }
-  & { createWorkShift: (
-    { __typename?: 'WorkShift' }
-    & RegularWorkShiftFragment
+  & { createShift: (
+    { __typename?: 'Shift' }
+    & Pick<Shift, 'workerId'>
+    & { worker: (
+      { __typename?: 'User' }
+      & RegularUserFragment
+    ) }
   ) }
+);
+
+export type DeleteEventMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DeleteEventMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteEvent'>
 );
 
 export type DeletePostMutationVariables = Exact<{
@@ -266,16 +339,6 @@ export type DeletePostMutationVariables = Exact<{
 export type DeletePostMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'deletePost'>
-);
-
-export type DeleteWorkShiftMutationVariables = Exact<{
-  id: Scalars['Int'];
-}>;
-
-
-export type DeleteWorkShiftMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'deleteWorkShift'>
 );
 
 export type ForgotPasswordMutationVariables = Exact<{
@@ -328,6 +391,20 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdateEventMutationVariables = Exact<{
+  id: Scalars['Int'];
+  options: UpdateEventInput;
+}>;
+
+
+export type UpdateEventMutation = (
+  { __typename?: 'Mutation' }
+  & { updateEvent?: Maybe<(
+    { __typename?: 'Event' }
+    & Pick<Event, 'id' | 'title' | 'locale' | 'notes'>
+  )> }
+);
+
 export type UpdatePostMutationVariables = Exact<{
   id: Scalars['Int'];
   options: PostInput;
@@ -342,20 +419,6 @@ export type UpdatePostMutation = (
   )> }
 );
 
-export type UpdateWorkShiftMutationVariables = Exact<{
-  id: Scalars['Int'];
-  options: WorkShiftInput;
-}>;
-
-
-export type UpdateWorkShiftMutation = (
-  { __typename?: 'Mutation' }
-  & { updateWorkShift?: Maybe<(
-    { __typename?: 'WorkShift' }
-    & Pick<WorkShift, 'id' | 'title' | 'notes'>
-  )> }
-);
-
 export type VoteMutationVariables = Exact<{
   postId: Scalars['Int'];
   value: Scalars['Int'];
@@ -365,6 +428,37 @@ export type VoteMutationVariables = Exact<{
 export type VoteMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'vote'>
+);
+
+export type EventQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type EventQuery = (
+  { __typename?: 'Query' }
+  & { event?: Maybe<(
+    { __typename?: 'Event' }
+    & RegularEventFragment
+  )> }
+);
+
+export type EventsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type EventsQuery = (
+  { __typename?: 'Query' }
+  & { events: (
+    { __typename?: 'PaginatedEvents' }
+    & Pick<PaginatedEvents, 'hasMore'>
+    & { events: Array<(
+      { __typename?: 'Event' }
+      & RegularEventFragment
+    )> }
+  ) }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -413,37 +507,14 @@ export type PostsQuery = (
   ) }
 );
 
-export type WorkShiftQueryVariables = Exact<{
-  id: Scalars['Int'];
-}>;
-
-
-export type WorkShiftQuery = (
-  { __typename?: 'Query' }
-  & { workShift?: Maybe<(
-    { __typename?: 'WorkShift' }
-    & RegularWorkShiftFragment
-  )> }
-);
-
-export type WorkShiftsQueryVariables = Exact<{
-  limit: Scalars['Int'];
-  cursor?: Maybe<Scalars['String']>;
-}>;
-
-
-export type WorkShiftsQuery = (
-  { __typename?: 'Query' }
-  & { workShifts: (
-    { __typename?: 'PaginatedWorkShifts' }
-    & Pick<PaginatedWorkShifts, 'hasMore'>
-    & { workShifts: Array<(
-      { __typename?: 'WorkShift' }
-      & RegularWorkShiftFragment
-    )> }
-  ) }
-);
-
+export const RegularUserFragmentDoc = gql`
+    fragment RegularUser on User {
+  id
+  firstName
+  lastName
+  email
+}
+    `;
 export const PostSnippetFragmentDoc = gql`
     fragment PostSnippet on Post {
   id
@@ -454,11 +525,30 @@ export const PostSnippetFragmentDoc = gql`
   points
   voteStatus
   creator {
-    id
-    email
+    ...RegularUser
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
+export const RegularEventFragmentDoc = gql`
+    fragment RegularEvent on Event {
+  id
+  title
+  sa {
+    ...RegularUser
+  }
+  locale
+  notes
+  shifts {
+    workerId
+    worker {
+      ...RegularUser
+    }
+  }
+  hasShift
+  createdAt
+  updatedAt
+}
+    ${RegularUserFragmentDoc}`;
 export const RegularPostFragmentDoc = gql`
     fragment RegularPost on Post {
   id
@@ -466,23 +556,6 @@ export const RegularPostFragmentDoc = gql`
   title
   text
   points
-  createdAt
-  updatedAt
-}
-    `;
-export const RegularUserFragmentDoc = gql`
-    fragment RegularUser on User {
-  id
-  firstName
-  lastName
-  email
-}
-    `;
-export const RegularWorkShiftFragmentDoc = gql`
-    fragment RegularWorkShift on WorkShift {
-  id
-  title
-  notes
   createdAt
   updatedAt
 }
@@ -500,6 +573,17 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreateEventDocument = gql`
+    mutation CreateEvent($options: CreateEventInput!) {
+  createEvent(options: $options) {
+    ...RegularEvent
+  }
+}
+    ${RegularEventFragmentDoc}`;
+
+export function useCreateEventMutation() {
+  return Urql.useMutation<CreateEventMutation, CreateEventMutationVariables>(CreateEventDocument);
+};
 export const CreatePostDocument = gql`
     mutation CreatePost($options: PostInput!) {
   createPost(options: $options) {
@@ -511,16 +595,28 @@ export const CreatePostDocument = gql`
 export function useCreatePostMutation() {
   return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
 };
-export const CreateWorkShiftDocument = gql`
-    mutation CreateWorkShift($options: WorkShiftInput!) {
-  createWorkShift(options: $options) {
-    ...RegularWorkShift
+export const CreateShiftDocument = gql`
+    mutation CreateShift($eventId: Int!) {
+  createShift(eventId: $eventId) {
+    workerId
+    worker {
+      ...RegularUser
+    }
   }
 }
-    ${RegularWorkShiftFragmentDoc}`;
+    ${RegularUserFragmentDoc}`;
 
-export function useCreateWorkShiftMutation() {
-  return Urql.useMutation<CreateWorkShiftMutation, CreateWorkShiftMutationVariables>(CreateWorkShiftDocument);
+export function useCreateShiftMutation() {
+  return Urql.useMutation<CreateShiftMutation, CreateShiftMutationVariables>(CreateShiftDocument);
+};
+export const DeleteEventDocument = gql`
+    mutation DeleteEvent($id: Int!) {
+  deleteEvent(id: $id)
+}
+    `;
+
+export function useDeleteEventMutation() {
+  return Urql.useMutation<DeleteEventMutation, DeleteEventMutationVariables>(DeleteEventDocument);
 };
 export const DeletePostDocument = gql`
     mutation DeletePost($id: Int!) {
@@ -530,15 +626,6 @@ export const DeletePostDocument = gql`
 
 export function useDeletePostMutation() {
   return Urql.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument);
-};
-export const DeleteWorkShiftDocument = gql`
-    mutation DeleteWorkShift($id: Int!) {
-  deleteWorkShift(id: $id)
-}
-    `;
-
-export function useDeleteWorkShiftMutation() {
-  return Urql.useMutation<DeleteWorkShiftMutation, DeleteWorkShiftMutationVariables>(DeleteWorkShiftDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
@@ -584,6 +671,20 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const UpdateEventDocument = gql`
+    mutation UpdateEvent($id: Int!, $options: UpdateEventInput!) {
+  updateEvent(id: $id, options: $options) {
+    id
+    title
+    locale
+    notes
+  }
+}
+    `;
+
+export function useUpdateEventMutation() {
+  return Urql.useMutation<UpdateEventMutation, UpdateEventMutationVariables>(UpdateEventDocument);
+};
 export const UpdatePostDocument = gql`
     mutation UpdatePost($id: Int!, $options: PostInput!) {
   updatePost(id: $id, options: $options) {
@@ -598,19 +699,6 @@ export const UpdatePostDocument = gql`
 export function useUpdatePostMutation() {
   return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument);
 };
-export const UpdateWorkShiftDocument = gql`
-    mutation UpdateWorkShift($id: Int!, $options: WorkShiftInput!) {
-  updateWorkShift(id: $id, options: $options) {
-    id
-    title
-    notes
-  }
-}
-    `;
-
-export function useUpdateWorkShiftMutation() {
-  return Urql.useMutation<UpdateWorkShiftMutation, UpdateWorkShiftMutationVariables>(UpdateWorkShiftDocument);
-};
 export const VoteDocument = gql`
     mutation Vote($postId: Int!, $value: Int!) {
   vote(postId: $postId, value: $value)
@@ -619,6 +707,31 @@ export const VoteDocument = gql`
 
 export function useVoteMutation() {
   return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+};
+export const EventDocument = gql`
+    query Event($id: Int!) {
+  event(id: $id) {
+    ...RegularEvent
+  }
+}
+    ${RegularEventFragmentDoc}`;
+
+export function useEventQuery(options: Omit<Urql.UseQueryArgs<EventQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<EventQuery>({ query: EventDocument, ...options });
+};
+export const EventsDocument = gql`
+    query Events($limit: Int!, $cursor: String) {
+  events(limit: $limit, cursor: $cursor) {
+    hasMore
+    events {
+      ...RegularEvent
+    }
+  }
+}
+    ${RegularEventFragmentDoc}`;
+
+export function useEventsQuery(options: Omit<Urql.UseQueryArgs<EventsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<EventsQuery>({ query: EventsDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {
@@ -667,29 +780,4 @@ export const PostsDocument = gql`
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
-};
-export const WorkShiftDocument = gql`
-    query WorkShift($id: Int!) {
-  workShift(id: $id) {
-    ...RegularWorkShift
-  }
-}
-    ${RegularWorkShiftFragmentDoc}`;
-
-export function useWorkShiftQuery(options: Omit<Urql.UseQueryArgs<WorkShiftQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<WorkShiftQuery>({ query: WorkShiftDocument, ...options });
-};
-export const WorkShiftsDocument = gql`
-    query WorkShifts($limit: Int!, $cursor: String) {
-  workShifts(limit: $limit, cursor: $cursor) {
-    hasMore
-    workShifts {
-      ...RegularWorkShift
-    }
-  }
-}
-    ${RegularWorkShiftFragmentDoc}`;
-
-export function useWorkShiftsQuery(options: Omit<Urql.UseQueryArgs<WorkShiftsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<WorkShiftsQuery>({ query: WorkShiftsDocument, ...options });
 };

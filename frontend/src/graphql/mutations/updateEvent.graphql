@@ -1,0 +1,8 @@
+mutation UpdateEvent($id: Int!, $options: UpdateEventInput!) {
+  updateEvent(id: $id, options: $options) {
+    id
+    title
+    locale
+    notes
+  }
+}

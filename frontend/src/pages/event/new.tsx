@@ -4,15 +4,15 @@ import { InputField } from "../../components/InputField";
 import { Box, Button, Heading } from "@chakra-ui/core";
 import { ErrorField } from "../../components/ErrorField";
 import { useRouter } from "next/router";
-import { useCreateWorkShiftMutation } from "../../generated/graphql";
+import { useCreateEventMutation } from "../../generated/graphql";
 import { Layout } from "../../components/Layout";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { useIsAuth } from "../../utils/useIsAuth";
 import { GraphQLError } from "graphql";
 
-const CreateWorkShift: React.FC<{}> = ({}) => {
-  const [, createWorkShift] = useCreateWorkShiftMutation();
+const CreateEvent: React.FC<{}> = ({}) => {
+  const [, createEvent] = useCreateEventMutation();
   const router = useRouter();
   useIsAuth();
 
@@ -22,16 +22,16 @@ const CreateWorkShift: React.FC<{}> = ({}) => {
         <Heading size="lg">Create new work shift</Heading>
       </Box>
       <Formik
-        initialValues={{ title: "", notes: "", error: "" }}
+        initialValues={{ title: "", notes: "", locale: "", error: "" }}
         onSubmit={async ({ error, ...values }, { setErrors }) => {
-          const response = await createWorkShift({ options: values });
+          const response = await createEvent({ options: values });
           if (response.error) {
             const [err] = response.error.graphQLErrors;
             // Display a general error message.
             setErrors({ error: err.message });
-          } else if (response.data?.createWorkShift) {
+          } else if (response.data?.createEvent) {
             // Post created
-            router.push("/work-shift");
+            router.push("/event");
           } else {
             throw new GraphQLError("Something went wrong");
           }
@@ -40,6 +40,11 @@ const CreateWorkShift: React.FC<{}> = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField name="title" label="Title" placeholder="ex. Pub" />
+            <InputField
+              name="locale"
+              label="Locale"
+              placeholder="ex. Gasquen"
+            />
             <InputField
               textarea
               name="notes"
@@ -60,4 +65,4 @@ const CreateWorkShift: React.FC<{}> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(CreateWorkShift);
+export default withUrqlClient(createUrqlClient)(CreateEvent);

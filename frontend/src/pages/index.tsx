@@ -11,7 +11,7 @@ import {
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
-import { EditDeletePostButtons } from "../components/EditDeletePostButtons";
+import { PostActionButtons } from "../components/PostActionButtons";
 import { Layout } from "../components/Layout";
 import { VoteSection } from "../components/VoteSection";
 import { usePostsQuery } from "../generated/graphql";
@@ -47,16 +47,13 @@ const Index = () => {
                         <Heading fontSize="xl">{p.title}</Heading>
                       </Link>
                     </NextLink>
-                    <Text>posted by {p.creator.username}</Text>
+                    <Text>posted by {p.creator.id}</Text>
                     <Flex align="center" flex={1}>
                       <Text flex={1} mt={4}>
                         {p.textSnippet}
                       </Text>
                       <Box ml="auto">
-                        <EditDeletePostButtons
-                          id={p.id}
-                          creatorId={p.creator.id}
-                        />
+                        <PostActionButtons id={p.id} creatorId={p.creator.id} />
                       </Box>
                     </Flex>
                   </Box>

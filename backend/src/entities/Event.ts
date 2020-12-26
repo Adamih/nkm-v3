@@ -39,13 +39,12 @@ export class Event extends BaseEntity {
   @Column({ type: "int", nullable: true })
   workersNeeded: number | null;
 
+  @Field(() => Boolean, { nullable: true })
+  hasShift: boolean;
+
   @Field(() => [Shift])
   @OneToMany(() => Shift, (shift) => shift.event, { eager: true })
   shifts: Shift[];
-
-  // TODO: has user registered to shift implementation
-  // @Field(() => Boolean)
-  // shiftStatus: boolean;
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })

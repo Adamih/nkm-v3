@@ -1,15 +1,15 @@
-import { Box, IButton, IconButton, Link } from "@chakra-ui/core";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import React from "react";
 import NextLink from "next/link";
 import { useDeletePostMutation, useMeQuery } from "../generated/graphql";
+import { Box, IconButton, Link } from "@chakra-ui/core";
 
-interface EditDeletePostButtonsProps {
+interface PostActionButtonsProps {
   id: number;
   creatorId: number;
-  size?: IButton["size"];
 }
 
-export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
+export const PostActionButtons: React.FC<PostActionButtonsProps> = ({
   id,
   creatorId,
   ...kwargs
@@ -25,7 +25,7 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
             as={Link}
             variant="ghost"
             aria-label="Edit Post"
-            icon="edit"
+            icon={<EditIcon />}
             {...kwargs}
           />
         </NextLink>
@@ -35,7 +35,7 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
           }}
           variant="ghost"
           aria-label="Delete Post"
-          icon="delete"
+          icon={<DeleteIcon />}
           {...kwargs}
         />
       </Box>
