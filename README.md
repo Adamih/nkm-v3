@@ -4,7 +4,7 @@
   - Date
   - Start / end time
   - Event responsible (& info)
-  - Money
+  - Balance
   - People needed
 
 - User register to shift (worker, SA)
