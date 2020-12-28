@@ -26,61 +26,7 @@ const Index = () => {
     variables,
   });
 
-  return (
-    <Layout>
-      {!data && fetching ? (
-        <Alert status="info">Loading...</Alert>
-      ) : !fetching && !data ? (
-        <Alert status="info">
-          No posts have been found. Create the first one!
-        </Alert>
-      ) : (
-        <Stack spacing={8}>
-          {data.posts.posts.map(
-            (p) =>
-              p && (
-                <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                  <VoteSection post={p} />
-                  <Box flex={1}>
-                    <NextLink href="post/[id]" as={`post/${p.id}`}>
-                      <Link>
-                        <Heading fontSize="xl">{p.title}</Heading>
-                      </Link>
-                    </NextLink>
-                    <Text>posted by {p.creator.id}</Text>
-                    <Flex align="center" flex={1}>
-                      <Text flex={1} mt={4}>
-                        {p.textSnippet}
-                      </Text>
-                      <Box ml="auto">
-                        <PostActionButtons id={p.id} creatorId={p.creator.id} />
-                      </Box>
-                    </Flex>
-                  </Box>
-                </Flex>
-              )
-          )}
-        </Stack>
-      )}
-      {data && data.posts.hasMore && (
-        <Flex>
-          <Button
-            onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
-              });
-            }}
-            isLoading={fetching}
-            m="auto"
-            my={8}
-          >
-            Load more
-          </Button>
-        </Flex>
-      )}
-    </Layout>
-  );
+  return <Layout>Hello, world!</Layout>;
 };
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

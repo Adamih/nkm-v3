@@ -1,10 +1,10 @@
 import { Alert, Box, Flex, Heading } from "@chakra-ui/core";
 import { withUrqlClient } from "next-urql";
 import React from "react";
-import { PostActionButtons } from "../../components/PostActionButtons";
-import { Layout } from "../../components/Layout";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
+import { PostActionButtons } from "../../../components/PostActionButtons";
+import { Layout } from "../../../components/Layout";
+import { createUrqlClient } from "../../../utils/createUrqlClient";
+import { useGetPostFromUrl } from "../../../utils/useGetPostFromUrl";
 
 const Post = ({}) => {
   const [{ data, fetching }] = useGetPostFromUrl();

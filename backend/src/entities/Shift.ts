@@ -4,7 +4,8 @@ import {
   BaseEntity,
   ManyToOne,
   CreateDateColumn,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
 } from "typeorm";
 import { User } from "./User";
 import { Event } from "./Event";
@@ -13,7 +14,11 @@ import { Event } from "./Event";
 @Entity()
 export class Shift extends BaseEntity {
   @Field()
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id!: number
+  
+  @Field()
+  @Column()
   workerId: number;
 
   @Field(() => User)
@@ -24,7 +29,7 @@ export class Shift extends BaseEntity {
   worker: User;
 
   @Field()
-  @PrimaryColumn()
+  @Column()
   eventId: number;
 
   @ManyToOne(() => Event, (event) => event.shifts, {

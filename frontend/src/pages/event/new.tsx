@@ -18,9 +18,6 @@ const CreateEvent: React.FC<{}> = ({}) => {
 
   return (
     <Layout>
-      <Box mb="4">
-        <Heading size="lg">Create new work shift</Heading>
-      </Box>
       <Formik
         initialValues={{ title: "", notes: "", locale: "", error: "" }}
         onSubmit={async ({ error, ...values }, { setErrors }) => {
@@ -55,7 +52,7 @@ const CreateEvent: React.FC<{}> = ({}) => {
               <ErrorField name="error" />
             </Box>
 
-            <Button type="submit" isLoading={isSubmitting} variantColor="teal">
+            <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
               Create
             </Button>
           </Form>

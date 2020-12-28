@@ -61,11 +61,7 @@ const EditPost = ({}) => {
                 <ErrorField name="error" />
               </Box>
 
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
-                variantColor="teal"
-              >
+              <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
                 Update
               </Button>
             </Form>

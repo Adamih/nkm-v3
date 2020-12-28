@@ -10,6 +10,7 @@ import {
   Flex,
   Heading,
   Link,
+  Spinner,
   Stack,
   StackDivider,
   Text,
@@ -41,10 +42,10 @@ const Index = () => {
       <NextLink href="/event/new">
         <Button mb={4}>New event</Button>
       </NextLink>
-      {!data && fetching ? (
-        <Alert status="info">Loading...</Alert>
-      ) : !data && !fetching ? (
-        <Alert status="info">No work shifts currently available.</Alert>
+      {fetching ? (
+        <Spinner />
+      ) : !data ? (
+        <Alert status="info">No events currently listed.</Alert>
       ) : (
         <Accordion allowMultiple={false} allowToggle={true}>
           {data.events.events.map(
@@ -87,7 +88,7 @@ const Index = () => {
                         <Text mr={2}>Registered:</Text>
                         <Wrap>
                           {e.shifts.map((s) => (
-                            <WrapItem>
+                            <WrapItem key={s.workerId}>
                               <Text textTransform="capitalize">{`${s.worker.firstName} ${s.worker.lastName}`}</Text>
                             </WrapItem>
                           ))}

@@ -28,7 +28,7 @@ const CreatePost: React.FC<{}> = ({}) => {
             setErrors({ error: err.message });
           } else if (response.data?.createPost) {
             // Post created
-            router.push("/");
+            router.push("/post");
           } else {
             throw new GraphQLError("Something went wrong");
           }
@@ -46,7 +46,7 @@ const CreatePost: React.FC<{}> = ({}) => {
               <ErrorField name="error" />
             </Box>
 
-            <Button type="submit" isLoading={isSubmitting} variantColor="teal">
+            <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
               Create
             </Button>
           </Form>

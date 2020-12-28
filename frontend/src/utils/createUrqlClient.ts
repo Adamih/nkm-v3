@@ -41,6 +41,11 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
+const typenames = {
+  events: "PaginatedEvents",
+  posts: "PaginatedPosts"
+}
+
 export const cursorPagination = (key): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
@@ -71,7 +76,7 @@ export const cursorPagination = (key): Resolver => {
     });
 
     return {
-      __typename: "PaginatedEvents",
+      __typename: typenames[key],
       hasMore,
       entries,
     };
@@ -123,7 +128,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               });
             },
             vote: (_result, args, cache, info) => {
-              const { postId, value } = args as VoteMutationVariables;
+              let { postId, value } = args as VoteMutationVariables;
               const data = cache.readFragment(
                 gql`
                   fragment _ on Post {
@@ -135,9 +140,13 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 { id: postId } as any
               );
               if (!data) return;
-              if (data.voteStatus === value) return;
-              const newPoints =
-                (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+              let newPoints = (data.points as number);
+              if (data.voteStatus === value) {
+                newPoints -= value;
+                value = 0;
+              } else { 
+                newPoints += (!data.voteStatus ? 1 : 2) * value;
+              }
               cache.writeFragment(
                 gql`
                   fragment __ on Post {
@@ -155,6 +164,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               invalidateAllEntries(cache, "events");
             },
             createShift: (_result, args, cache, info) => {
+              invalidateAllEntries(cache, "events");
+            },
+            updateSA: (_result, args, cache, info) => {
               invalidateAllEntries(cache, "events");
             },
             logout: (_result, args, cache, info) => {

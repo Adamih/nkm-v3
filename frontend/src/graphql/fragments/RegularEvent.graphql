@@ -7,6 +7,7 @@ fragment RegularEvent on Event {
   locale
   notes
   shifts {
+    id
     workerId
     worker {
       ...RegularUser

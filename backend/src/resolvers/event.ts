@@ -14,6 +14,7 @@ import { In, LessThan } from "typeorm";
 import { Event } from "../entities/Event";
 import { isAuth } from "../middleware/isAuth";
 import { Shift } from "../entities/Shift";
+import { User } from "../entities/User";
 
 @ObjectType()
 class PaginatedEvents {
@@ -36,8 +37,6 @@ export class EventResolver {
     const shift = await Shift.create({ workerId, eventId }).save();
     return shift;
   }
-
-  // TODO: Create set SA
 
   @Query(() => PaginatedEvents)
   async events(
@@ -103,7 +102,8 @@ export class EventResolver {
     @Arg("options") options: CreateEventInput
   ): Promise<Event | undefined> {
     const event = await Event.create(options).save();
-    return Object.assign(event, { shifts: [] });
+    event.shifts = [];
+    return event;
   }
 
   @Mutation(() => Event, { nullable: true })
@@ -112,16 +112,30 @@ export class EventResolver {
     @Arg("options", { nullable: true }) options: UpdateEventInput
   ): Promise<Event | null> {
     const event = await Event.findOne(id);
-    if (!event) {
-      return null;
-    }
+    if (!event) return null;
 
-    await Event.update({ id }, options);
+    await Event.update({id}, options);
     return Object.assign(event, options);
   }
 
   @Mutation(() => Boolean)
-  async deleteEvent(@Arg("id", () => Int) id: number): Promise<boolean> {
+  async updateSA(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyApolloContext  
+  ): Promise<true> {
+    const event = await Event.findOne(id);
+    if (!event) return true;
+    if (event.sa) return true;
+
+    const sa = await User.findOne(req.session.userId)
+    if (!sa) return true;
+
+    await Event.update({id}, {saId: sa.id});
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteEvent(@Arg("id", () => Int) id: number): Promise<true> {
     await Event.delete({ id });
     return true;
   }

@@ -1,0 +1,3 @@
+mutation UpdateSA($id: Int!) {
+  updateSA(id: $id)
+}

@@ -25,5 +25,14 @@
     "Urql",
     "chakra",
     "typeorm"
+  ],
+  "spellright.language": [
+    "English (American)"
+  ],
+  "spellright.documentTypes": [
+    "markdown",
+    "latex",
+    "plaintext",
+    "typescript"
   ]
 }

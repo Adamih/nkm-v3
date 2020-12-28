@@ -20,7 +20,7 @@ export const PostActionButtons: React.FC<PostActionButtonsProps> = ({
   return (
     data?.me?.id === creatorId && (
       <Box>
-        <NextLink href="/post/edit/[id]" as={`/post/edit/${id}`}>
+        <NextLink href="/post/[id]/edit" as={`/post/${id}/edit`}>
           <IconButton
             as={Link}
             variant="ghost"

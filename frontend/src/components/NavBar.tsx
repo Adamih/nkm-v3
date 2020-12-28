@@ -25,32 +25,34 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             <NextLink href="/event">
               <Link mr={2}>Events</Link>
             </NextLink>
+            <NextLink href="/post">
+              <Link mr={2}>Posts</Link>
+            </NextLink>
           </Flex>
         </Box>
 
         <Box ml="auto">
-          {!meFetching &&
-            (!data?.me ? (
-              <>
-                <NextLink href="/login">
-                  <Link mr={2}>Login</Link>
-                </NextLink>
-                <NextLink href="/register">
-                  <Link>Register</Link>
-                </NextLink>
-              </>
-            ) : (
-              <Flex align="center">
-                <Box mr={2}>{data.me.firstName}</Box>
-                <Button
-                  onClick={() => logout()}
-                  isLoading={logoutFetching}
-                  variant="link"
-                >
-                  Logout
-                </Button>
-              </Flex>
-            ))}
+          {!data?.me ? (
+            <>
+              <NextLink href="/login">
+                <Link mr={2}>Login</Link>
+              </NextLink>
+              <NextLink href="/register">
+                <Link>Register</Link>
+              </NextLink>
+            </>
+          ) : (
+            <Flex align="center">
+              <Box mr={2}>{data.me.firstName}</Box>
+              <Button
+                onClick={() => logout()}
+                isLoading={logoutFetching}
+                variant="link"
+              >
+                Logout
+              </Button>
+            </Flex>
+          )}
         </Box>
       </Flex>
     </Flex>

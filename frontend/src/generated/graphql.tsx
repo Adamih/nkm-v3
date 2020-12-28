@@ -96,6 +96,7 @@ export type Event = {
 
 export type Shift = {
   __typename?: 'Shift';
+  id: Scalars['Float'];
   workerId: Scalars['Float'];
   worker: User;
   eventId: Scalars['Float'];
@@ -114,9 +115,9 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean'];
   changePassword: UserResponse;
   createShift: Shift;
-  shift: Shift;
   createEvent: Event;
   updateEvent?: Maybe<Event>;
+  updateSA: Scalars['Boolean'];
   deleteEvent: Scalars['Boolean'];
 };
 
@@ -169,11 +170,6 @@ export type MutationCreateShiftArgs = {
 };
 
 
-export type MutationShiftArgs = {
-  id: Scalars['Int'];
-};
-
-
 export type MutationCreateEventArgs = {
   options: CreateEventInput;
 };
@@ -181,6 +177,11 @@ export type MutationCreateEventArgs = {
 
 export type MutationUpdateEventArgs = {
   options?: Maybe<UpdateEventInput>;
+  id: Scalars['Int'];
+};
+
+
+export type MutationUpdateSaArgs = {
   id: Scalars['Int'];
 };
 
@@ -221,7 +222,6 @@ export type CreateEventInput = {
 export type UpdateEventInput = {
   title: Scalars['String'];
   locale: Scalars['String'];
-  saId?: Maybe<Scalars['Float']>;
   workersNeeded?: Maybe<Scalars['Float']>;
   notes?: Maybe<Scalars['String']>;
 };
@@ -243,7 +243,7 @@ export type RegularEventFragment = (
     & RegularUserFragment
   )>, shifts: Array<(
     { __typename?: 'Shift' }
-    & Pick<Shift, 'workerId'>
+    & Pick<Shift, 'id' | 'workerId'>
     & { worker: (
       { __typename?: 'User' }
       & RegularUserFragment
@@ -401,7 +401,7 @@ export type UpdateEventMutation = (
   { __typename?: 'Mutation' }
   & { updateEvent?: Maybe<(
     { __typename?: 'Event' }
-    & Pick<Event, 'id' | 'title' | 'locale' | 'notes'>
+    & RegularEventFragment
   )> }
 );
 
@@ -417,6 +417,16 @@ export type UpdatePostMutation = (
     { __typename?: 'Post' }
     & Pick<Post, 'id' | 'title' | 'text' | 'textSnippet'>
   )> }
+);
+
+export type UpdateSaMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type UpdateSaMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'updateSA'>
 );
 
 export type VoteMutationVariables = Exact<{
@@ -539,6 +549,7 @@ export const RegularEventFragmentDoc = gql`
   locale
   notes
   shifts {
+    id
     workerId
     worker {
       ...RegularUser
@@ -674,13 +685,10 @@ export function useRegisterMutation() {
 export const UpdateEventDocument = gql`
     mutation UpdateEvent($id: Int!, $options: UpdateEventInput!) {
   updateEvent(id: $id, options: $options) {
-    id
-    title
-    locale
-    notes
+    ...RegularEvent
   }
 }
-    `;
+    ${RegularEventFragmentDoc}`;
 
 export function useUpdateEventMutation() {
   return Urql.useMutation<UpdateEventMutation, UpdateEventMutationVariables>(UpdateEventDocument);
@@ -698,6 +706,15 @@ export const UpdatePostDocument = gql`
 
 export function useUpdatePostMutation() {
   return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument);
+};
+export const UpdateSaDocument = gql`
+    mutation UpdateSA($id: Int!) {
+  updateSA(id: $id)
+}
+    `;
+
+export function useUpdateSaMutation() {
+  return Urql.useMutation<UpdateSaMutation, UpdateSaMutationVariables>(UpdateSaDocument);
 };
 export const VoteDocument = gql`
     mutation Vote($postId: Int!, $value: Int!) {

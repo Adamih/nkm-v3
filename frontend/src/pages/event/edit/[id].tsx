@@ -1,4 +1,4 @@
-import { Box, Button } from "@chakra-ui/core";
+import { Alert, Box, Button, Spinner } from "@chakra-ui/core";
 import { Form, Formik } from "formik";
 import { GraphQLError } from "graphql";
 import { withUrqlClient } from "next-urql";
@@ -25,9 +25,9 @@ const EditEvent = ({}) => {
   return (
     <Layout>
       {fetching ? (
-        <Box>loading...</Box>
+        <Spinner />
       ) : !data?.event ? (
-        <Box>could not find shift</Box>
+        <Alert status="error">Could not find event. </Alert>
       ) : (
         <Formik
           initialValues={{
@@ -71,11 +71,7 @@ const EditEvent = ({}) => {
                 <ErrorField name="error" />
               </Box>
 
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
-                variantColor="teal"
-              >
+              <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
                 Update
               </Button>
             </Form>

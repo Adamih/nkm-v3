@@ -52,6 +52,9 @@ export class PostResolver {
       vote.value = value;
       await Vote.save(vote);
       await Post.getRepository().increment({ id: postId }, "points", value * 2);
+    } else {
+      await Vote.delete(vote);
+      await Post.getRepository().decrement({ id: postId }, "points", value);
     }
 
     return true;

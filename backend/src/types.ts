@@ -80,8 +80,6 @@ class UpdateEventInput {
   @Field()
   locale: string;
   @Field({ nullable: true })
-  saId?: number;
-  @Field({ nullable: true })
   workersNeeded?: number;
   @Field({ nullable: true })
   notes?: string;

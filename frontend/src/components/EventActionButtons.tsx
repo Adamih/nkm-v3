@@ -1,12 +1,17 @@
 import React from "react";
 import NextLink from "next/link";
 import {
+  Event,
   useCreateShiftMutation,
   useDeleteEventMutation,
+  useEventQuery,
+  useMeQuery,
+  useUpdateSaMutation,
 } from "../generated/graphql";
 import { UserPlusIcon } from "../icons/user-plus";
-import { Box, Button, IconButton, Link } from "@chakra-ui/core";
+import { Box, Button, IconButton, Link, Spinner } from "@chakra-ui/core";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { useToast } from "@chakra-ui/react";
 
 interface EventActionButtonsProps {
   id: number;
@@ -18,6 +23,14 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
 }) => {
   const [, deleteEvent] = useDeleteEventMutation();
   const [, createShift] = useCreateShiftMutation();
+  const [{ data: eventData, fetching: fetchingEvent }] = useEventQuery({
+    variables: { id: id },
+  });
+  const [, updateSA] = useUpdateSaMutation();
+
+  if (fetchingEvent || !eventData?.event) return <Spinner />;
+
+  const event = eventData.event;
 
   return (
     <Box>
@@ -39,23 +52,30 @@ export const EventActionButtons: React.FC<EventActionButtonsProps> = ({
         icon={<DeleteIcon />}
         {...kwargs}
       />
-      <IconButton
-        onClick={() => {
-          createShift({ eventId: id });
-        }}
-        variant="ghost"
-        aria-label="Register as worker"
-        icon={<UserPlusIcon />}
-        {...kwargs}
-      />
-      <Button
-        onClick={() => {}}
-        variant="ghost"
-        aria-label="Register as SA"
-        {...kwargs}
-      >
-        SA
-      </Button>
+      {!event.hasShift && (
+        <IconButton
+          onClick={async () => {
+            await createShift({ eventId: event.id });
+          }}
+          variant="ghost"
+          aria-label="Register as worker"
+          icon={<UserPlusIcon />}
+          {...kwargs}
+        />
+      )}
+      {!event.sa && (
+        <Button
+          onClick={async () => {
+            await createShift({ eventId: id });
+            await updateSA({ id: id });
+          }}
+          variant="ghost"
+          aria-label="Register as SA"
+          {...kwargs}
+        >
+          SA
+        </Button>
+      )}
     </Box>
   );
 };
